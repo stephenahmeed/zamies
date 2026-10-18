@@ -7,7 +7,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "dev": "node server.js",
-    "test": "node --test test/"
+    "test": "node --test test/proxy.test.js"
   },
   "license": "MIT"
 }
