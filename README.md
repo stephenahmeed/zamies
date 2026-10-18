@@ -15,7 +15,7 @@ ERC-7984 token.
 
 ## Features
 
-- **Encrypted cubes** — 4,444 ERC-721 cubes (ERC-2981 royalties). #1–#44 are the team reserve,
+- **Encrypted cubes** — 4,444 ERC-721 cubes (ERC-2981 royalty: 2% to treasury). #1–#44 are the team reserve,
   #45–#4,444 are the public mint at 20 cZAMA, max 10 per wallet. Payment is an encrypted cZAMA
   transfer; only a paid / not-paid flag is publicly decrypted by the Zama KMS before minting.
 - **Decrypt** — the holder privately decrypts their cube's seed in the browser with an EIP-712
@@ -35,7 +35,43 @@ ERC-7984 token.
 - **Relayer Streaks** (`RelayerStreaks`) — daily on-chain check-in for holders (next check-in after
   20h, streak resets after 48h).
 
-## Sepolia deployment (v4)
+## Pre-mainnet hardening (not deployed yet)
+
+The contracts in this repo include fixes that are **not yet deployed**. The Sepolia addresses below are the
+current v4 deploy, which predates these changes. A fresh Sepolia deploy (which resets testnet state) is needed to
+test them live.
+
+- **Stale-lock timeouts.** Mint (`requestMint`) and buy (`buy`) payments are escrowed in the contract until the
+  KMS-verified paid flag is finalized. If a mint batch or purchase isn't finalized before its deadline
+  (default 1 hour, owner-settable 15 min–7 days, fixed per request), anyone can call `cancelStaleMint` /
+  `cancelStalePurchase`: reserved supply, wallet allowance and listing locks are released and the escrow is
+  refunded to the buyer. All money-moving functions are `nonReentrant`.
+- **Bounded sweep.** Listings are kept in a price-sorted linked list, so the Burn Pool `sweep` finds the cheapest
+  open listing in a bounded walk (skipping at most 32 locked listings) instead of looping over every listing.
+  `listWithHint` / `updatePriceWithHint` accept an insert hint from `findInsertHint(price)`; plain `list` /
+  `updatePrice` still work but walk at most 64 nodes. Views: `firstListed`, `nextListed`, `cheapestOpen`.
+- **Royalty 2%.** ERC-2981 royalty defaults to 2% to the treasury, matching the treasury share of the 6.5% market
+  fee. Owner-configurable via `setRoyalty`, capped at 10% (`setTreasury` does not move the royalty receiver).
+
+Tests: `contracts/test/hardening.js` (55 tests total pass with `npx hardhat test`).
+
+## Relayer proxy (mainnet)
+
+The Zama-hosted mainnet relayer needs an API key that must never ship in frontend code. [`proxy/`](proxy/) is a
+small Vercel/Node proxy that forwards the SDK's relayer calls to `https://relayer.mainnet.zama.org/v2` (or the
+Sepolia relayer) and adds the `x-api-key` header server-side from `ZAMA_RELAYER_API_KEY`. CORS is restricted to the
+site origin and requests are rate-limited per IP. See [`proxy/README.md`](proxy/README.md).
+
+The site reads the relayer URL from `site/config.js`:
+
+```js
+window.ZAMIES_CONFIG = Object.freeze({ relayerUrl: null }); // null = SDK default (Sepolia's open relayer)
+// mainnet: relayerUrl: "https://<your-proxy>.vercel.app/api/relayer/1"
+```
+
+## Sepolia deployment (v4, current)
+
+These are the live testnet contracts. They do **not** include the hardening changes above yet.
 
 | Contract | Address |
 |---|---|
@@ -55,7 +91,8 @@ contracts/   Hardhat project (Solidity 0.8.27, @fhevm/solidity, OpenZeppelin con
   contracts/   Zamies.sol, ZamiesMarketV2.sol, hive/ (ZamiesHive, ZamiesMarketV3, CipherweightRegistry, RelayerStreaks), Mocks.sol
   test/        Hardhat tests using the FHEVM mock (@fhevm/hardhat-plugin)
   scripts/     deploy-v4.cjs (Sepolia deploy), e2e.cjs (Reveal end-to-end check)
-site/        Static site deployed on Vercel (index.html, app.js, chain.js, Zama relayer SDK in sdk/)
+site/        Static site deployed on Vercel (index.html, app.js, chain.js, config.js, Zama relayer SDK in sdk/)
+proxy/       Relayer API-key proxy (Vercel function api/relayer.js, core in lib/proxy.js, node --test tests)
 ```
 
 ## Setup
@@ -85,7 +122,15 @@ npm run deploy:sepolia         # writes addresses + tx hashes to deploy-v4.json
 ### Site
 
 `site/` is plain static HTML/JS with no build step. Serve it locally with any static server
-(e.g. `npx serve site`) or deploy the folder to Vercel. Contract addresses live in `site/chain.js`.
+(e.g. `npx serve site`) or deploy the folder to Vercel. Contract addresses live in `site/chain.js`;
+the relayer URL lives in `site/config.js`.
+
+### Proxy
+
+```bash
+cd proxy
+npm test
+```
 
 ## License
 

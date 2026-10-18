@@ -64,7 +64,7 @@ button{font-family:inherit;cursor:pointer}
 <div class="hud" id="mint"><h4>encrypt · hold to seal <i id="mi">max 10 / wallet</i></h4>
 <div class="qrow" id="qr"></div>
 <div class="kv" style="margin-top:8px"><span>total</span><b id="tot">20 cZAMA</b></div><div class="kv"><span style="color:var(--mut)">Need cZAMA?</span><a href="#/get-czama" style="color:var(--y)">Get cZAMA →</a></div>
-<button class="b" id="hold"><i id="hf"></i><span id="ht">PRESS &amp; HOLD TO ENCRYPT</span></button></div>
+<button class="b" id="hold"><i id="hf"></i><span id="ht">PRESS &amp; HOLD TO ENCRYPT</span></button><p class="zdisc zdisc-mint">This project is unaudited and independently built by a community developer. It is not audited, endorsed or operated by Zama. Use at your own risk.</p></div>
 <div class="hud" id="tray"><h4>your shielded <i id="tc">0</i></h4><div id="trb" style="color:var(--mut)">Sealed Zamies land here.</div></div>
 <div id="fx">
 <div class="hud p1" id="P1"><h4>① LWE encryption <i>n=630 q=2³²</i></h4><div id="lwe"></div></div>
@@ -81,7 +81,7 @@ button{font-family:inherit;cursor:pointer}
 <svg id="dk" viewBox="0 0 300 120" width="100%" height="110"></svg></div>
 <div><div id="artw"><canvas id="art" width="192" height="192"></canvas></div><div id="dtr" class="m" style="font-size:12px;margin-top:10px;min-height:60px"></div>
 <button class="b" id="dclose" style="width:100%;margin-top:8px" disabled>Close · only you can see this</button></div></div></div>
-<script src="store.js"></script><script type="module">
+<script src="config.js"></script><script src="store.js"></script><script type="module">
 import * as THREE from 'three';
 import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
 import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
@@ -218,4 +218,4 @@ function loop(){const t=clock.getElapsedTime(),dt=Math.min(.25,t-last);last=t;
    if(!flyers.length){M.busy=0;M.c=0;$('#fx').classList.remove('on');toast(`Mint complete. You now hold ${S.mine.length} Zamies. Open Shielded and use Decrypt to view them.`);ui()}}}
  FR++;const onM=document.body.classList.contains('r-mint');if(onM)doHover();decTick(performance.now());if(onM||FR%90==0||M.busy)composer?composer.render():R.render(scene,cam);requestAnimationFrame(loop)}
 for(let i=0;i<TOTAL;i++)setInst(i,0);paint();ui();if(!Z.REAL)for(let id=S.next-8;id<S.next;id++)mintEvt(id,S.own[id]);Z.mine().forEach(id=>{trayAdd(id);if(S.dec[id]){const it=$('#t'+id);it.querySelector('.sc').outerHTML=Z.alive(id);it.querySelector('[data-d]').textContent='View'}});loop();window.__Z={S,M};
-</script><script src="app.js"></script><script type="module" src="chain.js"></script><a class="xfab" id="xfab" href="https://x.com/ZamiesFHE" target="_blank" rel="noopener noreferrer" aria-label="Zamies on X (@ZamiesFHE)" title="@ZamiesFHE on X"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23 22h-6.1l-4.8-6.3L6.6 22H3.5l7.3-8.3L1 2h6.2l4.4 5.8L18.9 2zm-1.1 18.2h1.7L6.3 3.7H4.5l13.3 16.5z"/></svg></a></body></html>
+</script><script src="app.js"></script><script type="module" src="chain.js"></script><footer class="zdisc zdisc-pg" id="zdisc" role="contentinfo">This project is unaudited and independently built by a community developer. It is not audited, endorsed or operated by Zama. Use at your own risk.</footer><script>(()=>{const pg=document.getElementById("pg"),pf=document.getElementById("zdisc");const put=()=>{if(pg.lastElementChild!==pf)pg.appendChild(pf)};new MutationObserver(put).observe(pg,{childList:true});put()})()</script><a class="xfab" id="xfab" href="https://x.com/ZamiesFHE" target="_blank" rel="noopener noreferrer" aria-label="Zamies on X (@ZamiesFHE)" title="@ZamiesFHE on X"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23 22h-6.1l-4.8-6.3L6.6 22H3.5l7.3-8.3L1 2h6.2l4.4 5.8L18.9 2zm-1.1 18.2h1.7L6.3 3.7H4.5l13.3 16.5z"/></svg></a></body></html>

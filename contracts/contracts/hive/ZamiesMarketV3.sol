@@ -23,6 +23,12 @@ interface IZamiesHive {
 
 /// Zamies Confidential Market v3: immutable 6.5% split: 2% royalty to treasury, 4% Confidential Yield Pool,
 /// 0.5% Burn Gateway (buys listed cubes and removes them from supply forever). Seller receives 93.5%. No fee setter.
+/// Hardening:
+/// - A purchase that is not finalized before its deadline can be cancelled by anyone: listings unlock and the
+///   escrowed (encrypted) payment is refunded to the buyer. Buy payments are escrowed in this contract until settled.
+/// - Open listings are kept in a price-sorted linked list, so `sweep` finds the cheapest open listing in a bounded
+///   walk (it only skips locked listings, at most MAX_SWEEP_SKIP) instead of looping over every listing.
+///   Inserts take an optional hint (see `findInsertHint`) and walk at most MAX_HINT_WALK nodes.
 contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
     IERC721 public immutable nft;
     IERC7984 public immutable payToken;
@@ -39,8 +45,19 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
     IZamiesHive public immutable hive;
     bool public tradingForced;
 
+    uint256 public constant MAX_HINT_WALK = 64;   // max nodes walked from a hint when inserting a listing
+    uint256 public constant MAX_SWEEP_SKIP = 32;  // max locked listings skipped at the floor during sweep
+    uint256 public constant MIN_PENDING_TIMEOUT = 15 minutes;
+    uint256 public constant MAX_PENDING_TIMEOUT = 7 days;
+    /// Time after which an unfinalized purchase can be cancelled by anyone. Fixed per purchase at request time.
+    uint256 public pendingTimeout = 1 hours;
+    // price-sorted doubly linked list of listed ids (ascending; equal prices keep listing order). 0 = none.
+    uint256 private _head;
+    mapping(uint256 => uint256) private _next;
+    mapping(uint256 => uint256) private _prev;
+
     struct Listing { address seller; uint64 price; bool locked; }
-    struct Purchase { address buyer; uint256[] ids; ebool paid; bool done; }
+    struct Purchase { address buyer; uint256[] ids; ebool paid; bool done; uint64 deadline; euint64 escrow; }
     // status: 1 pending (payment unverified), 2 active, 3 closed
     struct Offer { address bidder; uint256 id; uint64 amount; uint8 status; ebool paid; euint64 escrow; }
 
@@ -62,6 +79,8 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
     event TradingForced(bool open);
     event BurnGatewayFunded(uint256 amount, uint256 balance);
     event CubeBurned(uint256 indexed id, uint64 price, address indexed seller, address indexed caller);
+    event PurchaseCancelled(uint256 indexed purchaseId, address indexed caller);
+    event PendingTimeoutUpdated(uint256 timeout);
 
     constructor(address nft_, address payToken_, address treasury_, address hive_) Ownable(msg.sender) {
         require(nft_ != address(0) && payToken_ != address(0) && treasury_ != address(0) && hive_ != address(0), "zero address");
@@ -79,13 +98,19 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
     modifier whenOpen() { require(tradingOpen(), "not available yet"); _; }
 
     // ---------- listings ----------
-    function list(uint256 id, uint64 price) external {
+    function list(uint256 id, uint64 price) external { _list(id, price, 0); }
+
+    /// Same as list, with an insert hint from `findInsertHint(price)` (needed once many listings are cheaper).
+    function listWithHint(uint256 id, uint64 price, uint256 hint) external { _list(id, price, hint); }
+
+    function _list(uint256 id, uint64 price, uint256 hint) private {
+        require(id != 0, "id");
         require(price > 0, "price");
         require(nft.ownerOf(id) == msg.sender, "not owner");
         require(!hive.isSealed(id), "sealed");
         nft.transferFrom(msg.sender, address(this), id);
         listings[id] = Listing(msg.sender, price, false);
-        _addL(id);
+        _addL(id, price, hint);
         emit Listed(id, msg.sender, price);
     }
 
@@ -98,11 +123,17 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
         emit Cancelled(id);
     }
 
-    function updatePrice(uint256 id, uint64 price) external {
+    function updatePrice(uint256 id, uint64 price) external { _updatePrice(id, price, 0); }
+
+    function updatePriceWithHint(uint256 id, uint64 price, uint256 hint) external { _updatePrice(id, price, hint); }
+
+    function _updatePrice(uint256 id, uint64 price, uint256 hint) private {
         Listing storage l = listings[id];
         require(l.seller == msg.sender && !l.locked, "cannot update");
         require(price > 0, "price");
+        _unlink(id);
         l.price = price;
+        _insertSorted(id, price, hint);
         emit PriceUpdated(id, price);
     }
 
@@ -120,7 +151,7 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
         ebool paid = FHE.eq(got, FHE.asEuint64(total));
         FHE.makePubliclyDecryptable(paid);
         pid = ++purchaseCount;
-        _purchases[pid] = Purchase(msg.sender, ids, paid, false);
+        _purchases[pid] = Purchase(msg.sender, ids, paid, false, uint64(block.timestamp + pendingTimeout), got);
         emit PurchaseRequested(pid, msg.sender, ids, FHE.toBytes32(paid));
     }
 
@@ -129,16 +160,38 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
         require(p.buyer != address(0) && !p.done, "bad purchase");
         p.done = true;
         _check(p.paid, paidClear, proof);
+        if (!paidClear) {
+            for (uint256 i = 0; i < p.ids.length; i++) listings[p.ids[i]].locked = false;
+            _sendEscrow(p.buyer, p.escrow); // whatever arrived (0 with ERC-7984 all-or-nothing) goes back
+            emit PurchaseFinalized(pid, false);
+            return;
+        }
         for (uint256 i = 0; i < p.ids.length; i++) {
             uint256 id = p.ids[i];
             Listing memory l = listings[id];
-            if (!paidClear) { listings[id].locked = false; continue; }
             delete listings[id];
             _remL(id);
             _settle(id, l.price, l.seller);
             nft.transferFrom(address(this), p.buyer, id);
         }
-        emit PurchaseFinalized(pid, paidClear);
+        emit PurchaseFinalized(pid, true);
+    }
+
+    /// Anyone can cancel a purchase that was not finalized before its deadline (KMS/relayer outage, or a buyer who
+    /// locks listings and never finalizes). Unlocks the listings and refunds the escrowed payment to the buyer.
+    function cancelStalePurchase(uint256 pid) external nonReentrant {
+        Purchase storage p = _purchases[pid];
+        require(p.buyer != address(0) && !p.done, "bad purchase");
+        require(block.timestamp >= p.deadline, "not stale yet");
+        p.done = true;
+        for (uint256 i = 0; i < p.ids.length; i++) listings[p.ids[i]].locked = false;
+        _sendEscrow(p.buyer, p.escrow);
+        emit PurchaseCancelled(pid, msg.sender);
+    }
+
+    function getPurchase(uint256 pid) external view returns (address buyer, uint256[] memory ids, bool done, uint64 deadline) {
+        Purchase storage p = _purchases[pid];
+        return (p.buyer, p.ids, p.done, p.deadline);
     }
 
     // ---------- offers ----------
@@ -210,11 +263,15 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
         Listing memory l = listings[id];
         require(l.seller != address(0) && !l.locked, "unavailable");
         require(l.price <= burnGatewayBalance, "gateway balance too low");
-        uint256 n = _listed.length;
-        for (uint256 i = 0; i < n; i++) { // must be the cheapest open listing (stops pool-drain by over-priced self listings)
-            Listing storage o = listings[_listed[i]];
-            require(o.locked || o.price >= l.price, "not cheapest");
+        // must be (tied for) the cheapest open listing (stops pool-drain by over-priced self listings).
+        // The list is price-sorted, so the first unlocked node is the floor; only locked nodes are skipped (bounded).
+        uint256 cur = _head;
+        uint256 skipped;
+        while (listings[cur].locked) {
+            cur = _next[cur];
+            require(++skipped <= MAX_SWEEP_SKIP, "too many locked listings");
         }
+        require(l.price <= listings[cur].price, "not cheapest");
         burnGatewayBalance -= l.price;
         delete listings[id];
         _remL(id);
@@ -226,9 +283,27 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
 
     function listedCount() external view returns (uint256) { return _listed.length; }
     function listedAt(uint256 i) external view returns (uint256) { return _listed[i]; }
+    /// Cheapest listing (locked or not) and the next one in price order; 0 = end.
+    function firstListed() external view returns (uint256) { return _head; }
+    function nextListed(uint256 id) external view returns (uint256) { return _next[id]; }
+    /// Off-chain helper (eth_call): the listed id after which a listing at `price` belongs (0 = at the head).
+    function findInsertHint(uint256 price) external view returns (uint256 hint) {
+        uint256 cur = _head;
+        while (cur != 0 && listings[cur].price <= price) { hint = cur; cur = _next[cur]; }
+    }
+    /// Cheapest open (unlocked) listing, 0 if none. Unbounded: view helper for eth_call only.
+    function cheapestOpen() external view returns (uint256 cur) {
+        cur = _head;
+        while (cur != 0 && listings[cur].locked) cur = _next[cur];
+    }
 
     // ---------- admin ----------
     function setTradingOpen(bool open) external onlyOwner { tradingForced = open; emit TradingForced(open); }
+    function setPendingTimeout(uint256 t) external onlyOwner {
+        require(t >= MIN_PENDING_TIMEOUT && t <= MAX_PENDING_TIMEOUT, "bad timeout");
+        pendingTimeout = t;
+        emit PendingTimeoutUpdated(t);
+    }
 
     // ---------- internals ----------
     function _pull(address from, uint64 amount) private returns (euint64 got) {
@@ -244,9 +319,11 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
         FHE.checkSignatures(hs, abi.encode(clear), proof);
     }
 
-    function _refund(Offer storage f) private {
-        FHE.allowTransient(f.escrow, address(payToken));
-        payToken.confidentialTransfer(f.bidder, f.escrow);
+    function _refund(Offer storage f) private { _sendEscrow(f.bidder, f.escrow); }
+
+    function _sendEscrow(address to, euint64 amount) private {
+        FHE.allowTransient(amount, address(payToken));
+        payToken.confidentialTransfer(to, amount);
     }
 
     function _settle(uint256, uint64 price, address seller) private {
@@ -259,10 +336,42 @@ contract ZamiesMarketV3 is Ownable, ReentrancyGuard, ZamaEthereumConfig {
         _pay(seller, price - roy - hold - brn);
     }
 
-    function _addL(uint256 id) private { _listed.push(id); _listedIdx[id] = _listed.length; }
+    function _addL(uint256 id, uint64 price, uint256 hint) private {
+        _listed.push(id); _listedIdx[id] = _listed.length;
+        _insertSorted(id, price, hint);
+    }
+
+    /// Insert `id` after the last node whose price <= `price`. Starts at `hint` when it is a listed id priced <= `price`,
+    /// otherwise at the head; walks at most MAX_HINT_WALK nodes.
+    function _insertSorted(uint256 id, uint64 price, uint256 hint) private {
+        uint256 cur;
+        if (hint != 0 && hint != id && _listedIdx[hint] != 0 && listings[hint].price <= price) cur = hint;
+        uint256 nxt = cur == 0 ? _head : _next[cur];
+        uint256 steps;
+        while (nxt != 0 && listings[nxt].price <= price) {
+            cur = nxt;
+            nxt = _next[nxt];
+            require(++steps <= MAX_HINT_WALK, "use a closer hint");
+        }
+        _prev[id] = cur;
+        _next[id] = nxt;
+        if (cur == 0) _head = id; else _next[cur] = id;
+        if (nxt != 0) _prev[nxt] = id;
+    }
+
+    function _unlink(uint256 id) private {
+        uint256 p = _prev[id];
+        uint256 n = _next[id];
+        if (p == 0) _head = n; else _next[p] = n;
+        if (n != 0) _prev[n] = p;
+        delete _prev[id];
+        delete _next[id];
+    }
+
     function _remL(uint256 id) private {
         uint256 k = _listedIdx[id];
         if (k == 0) return;
+        _unlink(id);
         uint256 last = _listed[_listed.length - 1];
         _listed[k - 1] = last;
         _listedIdx[last] = k;
