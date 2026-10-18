@@ -1,0 +1,13 @@
+{
+  "name": "zamies-relayer-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend proxy for the Zama Relayer: injects the x-api-key header server-side, CORS-restricted, rate-limited.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node server.js",
+    "test": "node --test test/"
+  },
+  "license": "MIT"
+}

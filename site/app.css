@@ -230,3 +230,9 @@ button.lk::after{content:"";position:absolute;inset:0;background:linear-gradient
 .xfab{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:40;width:38px;height:38px;display:grid;place-items:center;border-radius:99px;background:#0a0a0ce6;border:1px solid #FFD20855;color:#FFD208;opacity:.75;box-shadow:0 4px 14px #0008;transition:opacity .2s,border-color .2s,transform .2s}
 .xfab:hover,.xfab:focus-visible{opacity:1;border-color:#FFD208;transform:translateY(-2px)}
 @media(max-width:760px){.xfab{width:32px;height:32px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));opacity:.6}.xfab svg{width:14px;height:14px}#pg{padding-bottom:52px}}
+
+/* Zama disclaimer: footer at the end of every page (#pg), and a small line under the mint button */
+.zdisc{font:400 11px/1.45 "Space Grotesk",system-ui,sans-serif;color:#8a8a93;letter-spacing:.01em}
+.zdisc-pg{display:block;max-width:1100px;margin:28px auto 0;padding:14px 20px 22px;border-top:1px solid #ffffff14;text-align:center}
+.zdisc-mint{margin:8px 0 0;font-size:10px;line-height:1.35;text-align:center;opacity:.85}
+@media(max-width:760px){.zdisc-mint{font-size:9px;margin-top:6px}}

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/api/relayer/:chain/:path*", "destination": "/api/relayer?__chain=:chain&__path=:path*" }
+  ],
+  "functions": { "api/relayer.js": { "maxDuration": 30 } }
+}

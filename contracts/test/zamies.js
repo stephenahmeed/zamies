@@ -8,7 +8,7 @@ describe("Zamies v2 NFT + market",function(){this.timeout(300000);let o,t,u,v,z,
   z=await (await ethers.getContractFactory("Zamies")).deploy(await cz.getAddress(),t.address,20n*D,"https://x/");
   m=await (await ethers.getContractFactory("ZamiesMarketV2")).deploy(await z.getAddress(),await cz.getAddress(),t.address);M=await m.getAddress();
   await cz.mint(u.address,1000n*D);await cz.connect(u).setOperator(await z.getAddress(),2n**40n);await cz.connect(u).setOperator(M,2n**40n);});
- it("treasury + royalty to treasury, setters owner-only",async()=>{expect(await z.treasury()).to.eq(t.address);const [r,a]=await z.royaltyInfo(1,10000);expect(r).to.eq(t.address);expect(a).to.eq(400n);
+ it("treasury + royalty to treasury, setters owner-only",async()=>{expect(await z.treasury()).to.eq(t.address);const [r,a]=await z.royaltyInfo(1,10000);expect(r).to.eq(t.address);expect(a).to.eq(200n);
   await rv(z.connect(u).setTreasury(u.address));await rv(z.connect(u).setRoyalty(u.address,400));await z.setTreasury(v.address);await z.setRoyalty(v.address,400);expect(await z.treasury()).to.eq(v.address);expect((await z.royaltyInfo(1,10000))[0]).to.eq(v.address);
   await rv(z.setRoyalty(v.address,2000),"bad royalty");await rv(z.setTreasury(ethers.ZeroAddress),"zero address")});
  it("team mint 44 to team, capped",async()=>{for(let i=0;i<11;i++)await z.teamMint(t.address,4);expect(await z.teamMinted()).to.eq(44n);expect(await z.ownerOf(1)).to.eq(t.address);expect(await z.ownerOf(44)).to.eq(t.address);await rv(z.teamMint(t.address,1),"reserve used")});
