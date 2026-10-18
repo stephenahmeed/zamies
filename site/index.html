@@ -1,0 +1,221 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@ZamiesFHE"><meta name="twitter:creator" content="@ZamiesFHE"><meta name="twitter:title" content="Zamies · Confidential NFTs on Zama"><meta name="twitter:description" content="4,444 encrypted cubes on Zama FHEVM. First Confidential NFT Yield Pool on @zama."><meta property="og:title" content="Zamies · Confidential NFTs on Zama"><meta property="og:url" content="https://zamies-x.vercel.app"><link rel="me" href="https://x.com/ZamiesFHE">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1 1%22%3E%3Crect width=%221%22 height=%221%22 fill=%22%23FFD208%22/%3E%3C/svg%3E"><title>ZAMIES · The Encrypted Mint</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFD208;--bg:#050506;--fg:#f4f2e8;--mut:#8b8a80;--ln:#2a2a22}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:"Space Grotesk",system-ui,sans-serif;overflow:hidden}
+#gl{position:fixed;inset:0;display:block}
+.m{font-family:"JetBrains Mono",monospace}
+.hud{position:fixed;z-index:5;background:#08080acc;border:1px solid #FFD20833;border-radius:12px;backdrop-filter:blur(6px);font:11px/1.45 "JetBrains Mono",monospace;padding:10px 12px;color:#d9d6c4}
+.hud h4{margin:0 0 6px;font:700 10px "JetBrains Mono";letter-spacing:.18em;color:var(--y);text-transform:uppercase;display:flex;justify-content:space-between}
+.hud h4 i{font-style:normal;color:var(--mut)}
+#top{position:fixed;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;gap:14px;padding:12px 18px;background:linear-gradient(#050506,#05050600)}
+.logo{font-weight:700;letter-spacing:.12em;display:flex;gap:9px;align-items:center}.logo i{width:16px;height:16px;background:var(--y);border-radius:3px;box-shadow:0 0 16px var(--y)}
+#top .sp{flex:1}.pill{font:11px "JetBrains Mono";border:1px solid #FFD20855;border-radius:99px;padding:5px 11px;color:var(--y);white-space:nowrap}
+button{font-family:inherit;cursor:pointer}
+.b{background:var(--y);color:#000;border:0;border-radius:99px;padding:10px 18px;font-weight:700}.b.g{background:none;color:var(--fg);border:1px solid #444}.b:disabled{opacity:.35;cursor:default}
+#log{left:14px;top:62px;width:300px;height:250px;overflow:hidden}
+#log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:li .4s}@keyframes li{from{opacity:0;transform:translateX(-10px)}}
+#stats{right:14px;top:62px;width:270px}
+.kv{display:flex;justify-content:space-between;gap:8px}.kv b{color:var(--y)}
+.meter{height:6px;background:#1a1a14;border-radius:9px;overflow:hidden;margin:3px 0 6px}.meter i{display:block;height:100%;background:linear-gradient(90deg,#ff5a1a,var(--y));width:100%;transition:width .15s}
+#big{position:fixed;left:50%;top:58px;transform:translateX(-50%);z-index:4;text-align:center;pointer-events:none}
+#big .n{font-size:clamp(22px,3.4vw,40px);font-weight:700;letter-spacing:-.02em}#big .n em{color:var(--y);font-style:normal}
+#big .s{font:11px "JetBrains Mono";color:var(--mut);letter-spacing:.2em}
+#mint{left:50%;bottom:18px;transform:translateX(-50%);width:min(520px,94vw);padding:14px}
+.qrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.qrow .q{width:34px;height:34px;padding:0;border-radius:9px;background:#111;color:var(--fg);border:1px solid #333;font:700 13px "JetBrains Mono"}.qrow .q.on{background:var(--y);color:#000;border-color:var(--y)}.qrow .q:disabled{opacity:.25}
+#hold{width:100%;margin-top:10px;padding:16px;font-size:16px;border-radius:14px;position:relative;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+#hold i{position:absolute;inset:0 auto 0 0;width:0;background:#fff8}#hold span{position:relative}
+#tray{right:14px;bottom:18px;width:270px;max-height:46vh;overflow:auto}
+#tray .it{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #222}#tray .it svg,#tray .it .sc{width:42px;height:42px;flex:none;border-radius:6px}
+.sc{}@keyframes sh{to{background-position:100% 0}}
+#tray .it small{display:block;color:var(--mut);font-size:9px;word-break:break-all}#tray .it .b{padding:5px 9px;font-size:10px;margin-left:auto}
+/* crypto panels */
+#fx{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;transition:opacity .3s}#fx.on{opacity:1}
+#fx .hud{width:300px;height:170px;overflow:hidden}
+.p1{left:14px;top:330px}.p2{left:14px;top:510px}.p3{right:14px;top:330px}.p4{right:14px;top:510px}.p5{left:calc(50% - 150px);top:150px}.p6{left:calc(50% - 150px);top:330px}
+.hot{border-color:var(--y)!important;box-shadow:0 0 30px #FFD20855}
+.coef{color:#7d7a60;word-break:break-all}.coef b{color:var(--y)}
+#tip{position:fixed;z-index:20;pointer-events:none;opacity:0;padding:7px 10px}
+#flash{position:fixed;inset:0;z-index:8;background:radial-gradient(circle,#FFD208aa,transparent 60%);opacity:0;pointer-events:none}
+#toast{position:fixed;left:50%;top:120px;transform:translateX(-50%);z-index:30;background:var(--y);color:#000;padding:10px 18px;border-radius:99px;font-weight:700;opacity:0;transition:.3s;pointer-events:none;text-align:center;max-width:92vw}#toast.on{opacity:1}
+#dec{position:fixed;inset:0;z-index:40;background:#000c;display:none;place-items:center;padding:12px}#dec.on{display:grid}
+#dec .box{width:min(860px,96vw);max-height:94vh;overflow:auto;background:#09090b;border:1px solid #FFD20866;border-radius:18px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#dec pre{margin:0;font:10.5px/1.45 "JetBrains Mono";color:#cfcab0;background:#000;border:1px solid #222;border-radius:10px;padding:10px;white-space:pre-wrap;word-break:break-all}
+#dec .st{font:11px "JetBrains Mono";color:var(--mut)}#dec .st b{color:var(--y)}#dec .st div.on{color:var(--fg)}#dec .st div.ok:before{content:"✓ ";color:var(--y)}
+#art{width:100%;aspect-ratio:1;border-radius:12px;background:#000;image-rendering:pixelated;display:block}
+#artw{position:relative}#artw svg{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .4s;border-radius:12px}
+@media(max-width:900px){#log{width:200px;height:120px;font-size:9px}#stats{width:180px;font-size:10px}#fx .hud{width:46vw;height:118px;font-size:9px}.p1{left:2vw;top:auto;bottom:260px}.p3{right:2vw;top:auto;bottom:260px}.p2,.p4{display:none}.p5{left:2vw;top:200px}.p6{right:2vw;left:auto;top:200px}#tray{right:auto;left:8px;bottom:auto;top:200px;width:150px;max-height:30vh}#tray .it .b{padding:4px 7px;font-size:9px}#dec .box{grid-template-columns:1fr}#big{top:52px}#log{top:110px}#stats{top:110px}}
+@media(max-width:900px){#tray .it small{display:none}}
+</style><link rel="stylesheet" href="app.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head><body>
+<canvas id="gl"></canvas><div id="flash"></div>
+<div id="top"><a class="logo" href="#/mint" style="color:inherit;text-decoration:none"><i></i>ZAMIES</a><button id="burger" aria-label="Menu">☰</button><nav id="nav"><a href="#/mint">Encrypt</a><a href="#/explore">Handles</a><a href="#/market"><span class="lf">Confidential </span>Market</a><a href="#/activity">Relayer</a><a href="#/vault">Shielded</a><a href="#/coprocessor" class="cop">Coprocessor</a><a href="#/battles">Battles</a><a href="#/faq">FAQ</a><a href="#/get-czama" class="gcz">Get cZAMA</a></nav><span id="bal" hidden>500</span><button class="b" id="connect">Connect wallet</button></div>
+<div id="big"><div class="n"><em id="nm">0</em> minted · <em id="nl">0</em> of 4,444 left</div><div class="s">4,400 PUBLIC · 44 TEAM RESERVE · EVERY CUBE A CIPHERTEXT</div></div>
+<div class="hud" id="log"><h4>encrypted mint log <i>live</i></h4><div id="logb"></div></div>
+<div class="hud" id="stats"><h4>FHE state <i>sepolia</i></h4>
+<div class="kv"><span>supply left</span><b id="s_left"></b></div><div class="kv"><span>team reserve</span><b>44 · #1–#44</b></div><div class="kv"><span>your mints</span><b id="s_me">0 / 10</b></div>
+<div class="kv"><span>price</span><b>20 cZAMA</b></div><div class="kv"><span>gas</span><b id="s_gas">—</b></div>
+<div class="kv"><span>ciphertext size</span><b id="s_ct">0 KB</b></div>
+<div class="kv"><span>noise budget</span><b id="s_nb">100%</b></div><div class="meter"><i id="nbm"></i></div>
+<div style="color:var(--mut)">encrypted rarity counters</div>
+<div class="kv"><span>Common</span><b data-c></b></div><div class="kv"><span>Rare</span><b data-c></b></div><div class="kv"><span>Epic</span><b data-c></b></div><div class="kv"><span>Legendary</span><b data-c></b></div></div>
+<div class="hud" id="mint"><h4>encrypt · hold to seal <i id="mi">max 10 / wallet</i></h4>
+<div class="qrow" id="qr"></div>
+<div class="kv" style="margin-top:8px"><span>total</span><b id="tot">20 cZAMA</b></div><div class="kv"><span style="color:var(--mut)">Need cZAMA?</span><a href="#/get-czama" style="color:var(--y)">Get cZAMA →</a></div>
+<button class="b" id="hold"><i id="hf"></i><span id="ht">PRESS &amp; HOLD TO ENCRYPT</span></button></div>
+<div class="hud" id="tray"><h4>your shielded <i id="tc">0</i></h4><div id="trb" style="color:var(--mut)">Sealed Zamies land here.</div></div>
+<div id="fx">
+<div class="hud p1" id="P1"><h4>① LWE encryption <i>n=630 q=2³²</i></h4><div id="lwe"></div></div>
+<div class="hud p2" id="P2"><h4>② ring Z_q[X]/(X^N+1) <i>N=2048</i></h4><div class="coef" id="poly"></div></div>
+<div class="hud p5" id="P3"><h4>③ homomorphic eval <i>no decrypt</i></h4><div id="hom"></div></div>
+<div class="hud p6" id="P4"><h4>④ programmable bootstrap <i>LUT</i></h4><svg id="pbs" viewBox="0 0 300 120" width="100%" height="120"></svg></div>
+<div class="hud p3" id="P5"><h4>⑤ ACL · FHE.allow() <i>graph</i></h4><svg id="acl" viewBox="0 0 300 120" width="100%" height="125"></svg></div>
+<div class="hud p4" id="P6"><h4>⑥ KMS threshold <i id="kq">0/13</i></h4><svg id="kms" viewBox="0 0 300 120" width="100%" height="125"></svg></div>
+</div>
+<div id="pg"></div><div class="modal" id="md"></div><div class="hud" id="tip"></div><div id="toast"></div>
+<div id="dec"><div class="box"><div>
+<h4 style="margin:0 0 8px;color:var(--y);font:700 12px 'JetBrains Mono';letter-spacing:.15em">USER DECRYPTION · <span id="did"></span></h4>
+<pre id="eip"></pre><div class="st" id="dst" style="margin-top:10px"></div>
+<svg id="dk" viewBox="0 0 300 120" width="100%" height="110"></svg></div>
+<div><div id="artw"><canvas id="art" width="192" height="192"></canvas></div><div id="dtr" class="m" style="font-size:12px;margin-top:10px;min-height:60px"></div>
+<button class="b" id="dclose" style="width:100%;margin-top:8px" disabled>Close · only you can see this</button></div></div></div>
+<script src="store.js"></script><script type="module">
+import * as THREE from 'three';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const TOTAL=4444,MAXW=10,PRICE=20,ME=window.Z.ME,MOBILE=matchMedia('(max-width:900px)').matches||navigator.hardwareConcurrency<=4;
+const HX=n=>{let s='';for(let i=0;i<n;i++)s+=(Math.random()*16|0).toString(16);return s};
+const addr=()=>'0x'+HX(4)+'…'+HX(4);
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const RAR=['Common','Rare','Epic','Legendary'],CLS=['Sun','Ember','Honey','Void'],ELM=['Flame','Static','Nectar','Shadow'];
+const traits=id=>window.Z.traits(id);
+const handle=id=>'0x'+(Math.imul(id+7,2654435761)>>>0).toString(16).padStart(8,'0')+HX(56);
+// ---- state
+const Z=window.Z,S=Z.S;S.q=1;S.sound=false;/* sound UI removed */S.noise=1;const take=w=>Z.take(w);
+const left=()=>TOTAL-S.minted,used=()=>Z.REAL?(S.mintedBy||0):S.mine.length,canMax=()=>Math.max(0,Math.min(MAXW-used(),left()));
+// ---- three
+const cv=$('#gl'),R=new THREE.WebGLRenderer({canvas:cv,antialias:!MOBILE,powerPreference:'high-performance'});
+R.setPixelRatio(Math.min(devicePixelRatio,MOBILE?1:1.75));R.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x050506,.045);
+const cam=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,200);const CAM0=new THREE.Vector3(0,3.5,MOBILE?24:17);cam.position.copy(CAM0);
+const U=101,V=44,RR=6.2,rr=2.3;
+const geo=new THREE.BoxGeometry(.17,.17,.17),mat=new THREE.MeshBasicMaterial({color:0xffffff});
+const IM=new THREE.InstancedMesh(geo,mat,TOTAL);IM.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+const group=new THREE.Group();group.add(IM);scene.add(group);group.rotation.x=-1.05;
+const base=[],dm=new THREE.Object3D(),col=new THREE.Color();
+for(let i=0;i<TOTAL;i++){const u=Math.floor(i/V)/U*Math.PI*2,v=(i%V)/V*Math.PI*2,p=new THREE.Vector3((RR+rr*Math.cos(v))*Math.cos(u),(RR+rr*Math.cos(v))*Math.sin(u),rr*Math.sin(v));base.push({p,u,v})}
+const DIRTY=new Set(),hidden=new Set(),pulse=new Float32Array(TOTAL+1);
+function colorOf(id){const o=S.own[id];if(!o)return col.setRGB(.07,.07,.06);if(o==ME)return col.setRGB(1.6,1.5,1.2);if(id<=44)return col.setRGB(.6,.42,0);const k=pulse[id];return col.setRGB(1+k*1.5,.82+k,.03+k*.6)}
+function setInst(i,t){const id=i+1,b=base[i];let s=hidden.has(id)?0:S.own[id]?1:.75;
+ dm.position.copy(b.p);dm.rotation.set(b.v,b.u,0);dm.scale.setScalar(s*(1+pulse[id]*.8));dm.updateMatrix();IM.setMatrixAt(i,dm.matrix)}
+function paint(){for(let id=1;id<=TOTAL;id++)IM.setColorAt(id-1,colorOf(id));IM.instanceColor.needsUpdate=true}
+// inner core + data rings
+const core=new THREE.Mesh(new THREE.IcosahedronGeometry(1.5,1),new THREE.MeshBasicMaterial({color:0xFFD208,wireframe:true,transparent:true,opacity:.35}));group.add(core);
+const pts=new THREE.BufferGeometry(),PN=MOBILE?1500:4000,pa=new Float32Array(PN*3);for(let i=0;i<PN;i++){const r=9+Math.random()*30,a=Math.random()*6.28,b=(Math.random()-.5)*3;pa.set([r*Math.cos(a),b*r*.15,r*Math.sin(a)],i*3)}
+pts.setAttribute('position',new THREE.BufferAttribute(pa,3));const stars=new THREE.Points(pts,new THREE.PointsMaterial({color:0xFFD208,size:.05,transparent:true,opacity:.55}));scene.add(stars);
+const shock=new THREE.Mesh(new THREE.RingGeometry(.9,1,96),new THREE.MeshBasicMaterial({color:0xFFE680,transparent:true,opacity:0,side:THREE.DoubleSide}));scene.add(shock);
+let composer=null;if(!MOBILE){composer=new EffectComposer(R);composer.addPass(new RenderPass(scene,cam));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.9,.5,.2))}
+addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();R.setSize(innerWidth,innerHeight);composer&&composer.setSize(innerWidth,innerHeight)});
+// hover
+const ray=new THREE.Raycaster(),mp=new THREE.Vector2(),tip=$('#tip');let hov=-1,mx=0,my=0;
+cv.addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;mp.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);hov=1});
+cv.addEventListener('pointerdown',e=>{mx=e.clientX;my=e.clientY;mp.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);hov=1});
+cv.addEventListener('pointerleave',()=>{hov=-1;tip.style.opacity=0});
+function doHover(){if(hov<0)return;hov=-1;ray.setFromCamera(mp,cam);const h=ray.intersectObject(IM)[0];if(!h){tip.style.opacity=0;return}const id=h.instanceId+1,o=S.own[id];
+ tip.innerHTML=o?`<b style="color:var(--y)">Zamies #${id}</b><br>owner ${o==ME?'you ('+ME+')':o}<br>traits encrypted<br><span style="color:#777">${handle(id).slice(0,26)}…</span>`:`<b>Zamies #${id}</b><br>unminted · empty slot`;
+ tip.style.left=Math.min(innerWidth-230,mx+14)+'px';tip.style.top=Math.min(innerHeight-90,my+14)+'px';tip.style.opacity=1}
+// ---- sound
+let AC=null;function beep(f,d=.06,v=.03){if(!S.sound)return;try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=f;g.gain.value=v;o.connect(g).connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(_){}}
+// ---- HUD
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.k);toast.k=setTimeout(()=>t.classList.remove('on'),2600)};
+function log(html){const d=document.createElement('div');d.innerHTML=`<span style="color:#666">${new Date().toLocaleTimeString([],{hour12:false})}</span> ${html}`;$('#logb').prepend(d);while($('#logb').children.length>16)$('#logb').lastChild.remove()}
+function ui(){$('#nm').textContent=S.minted.toLocaleString();$('#nl').textContent=left().toLocaleString();$('#s_left').textContent=left().toLocaleString();$('#s_me').textContent=used()+' / 10';$('#bal').textContent=Z.REAL&&!S.balKnown?'••••':S.bal;
+ const m=canMax();if(S.q>m)S.q=Math.max(1,m);$('#qr').innerHTML=[...Array(10)].map((_,i)=>`<button class="q ${S.q==i+1?'on':''}" data-q="${i+1}" ${i+1>m?'disabled':''}>${i+1}</button>`).join('');$('#tot').textContent=S.q*PRICE+' cZAMA';
+ if(!M.busy){$('#hold').disabled=m<1;$('#ht').textContent=m<1?(left()<1?'SOLD OUT':'WALLET LIMIT REACHED (10)'):`PRESS & HOLD TO ENCRYPT ${S.q}`}}
+$('#qr').onclick=e=>{const b=e.target.closest('[data-q]');if(b&&!M.busy){S.q=+b.dataset.q;ui();beep(600)}};
+function mintEvt(id,w){pulse[id]=1;const T=traits(id);log(`<b style="color:var(--y)">Zamies #${id}</b> ${w==ME?'<b>YOU</b>':w} rar=<span style="color:#FFD208">enc(0x${HX(6)})</span>`)}
+setInterval(()=>{$$('[data-c]').forEach(b=>b.textContent='0x'+HX(8));$('#s_gas').textContent=S.gas!=null?S.gas.toFixed(3)+' gwei':'—';$('#s_ct').textContent=(S.minted*0.032).toFixed(1)+' KB'},600);
+Z.on(e=>{if(e.type==='mint'&&e.to!==ME){mintEvt(e.id,e.to);ui()}if(e.type==='sale'||e.type==='ui')ui()});
+// ---- crypto panels
+const M={c:0,holding:0,busy:0,t:0};const q32=()=>(Math.random()*4294967296>>>0);
+function fxUpdate(t){const c=M.c,stage=Math.min(5,Math.floor(c*6));$$('#fx .hud').forEach((p,i)=>p.classList.toggle('hot',i==stage));
+ const m=Math.floor(Math.random()*4);const a=[...Array(5)].map(()=>q32().toString(16).padStart(8,'0'));
+ $('#lwe').innerHTML=`m = rarity <b style="color:#fff">${m}</b> → Δ·m = ${(m*1073741824>>>0).toString(16)}<br>a = [${a.join(' ')} …]<br>s = [■■■■ ■■■■ ■■■■ … secret]<br>e ← χ<sub>σ</sub> noise <b style="color:#ff7a1a">${(Math.random()*6-3).toFixed(3)}</b><br>b = ⟨a,s⟩ + e + Δm = <b style="color:var(--y)">${q32().toString(16)}</b><br>ct = (a, b) ✓ ${(c*100|0)}%`;
+ $('#poly').innerHTML=[...Array(MOBILE?40:84)].map((_,i)=>{const v=(Math.random()*65536|0).toString(16).padStart(4,'0');return i==(t*30|0)%84?`<b>${v}</b>`:v}).join(' ')+`<br><span style="color:#ddd">NTT pass ${(t*7|0)%11}/11 · X^${(t*500|0)%2048}</span>`;
+ const ea=HX(6),eb=HX(6);$('#hom').innerHTML=`enc(paid) = 0x${ea}…<br>enc(price·q) = 0x${eb}…<br><b style="color:var(--y)">FHE.sub</b>(enc(bal), enc(price·${S.q}))<br>FHE.ge(enc(bal), enc(cost)) → <b style="color:var(--y)">ebool 0x${HX(4)}</b><br>FHE.select(ok, enc(bal−c), enc(bal))<br>enc(c) = 0x${HX(12)}… <span style="color:#7f7">never decrypted</span>`;
+ // noise budget
+ S.noise=c<.55?1-c*1.4:c<.7?.25:Math.min(1,.25+(c-.7)*4);$('#s_nb').textContent=(S.noise*100|0)+'%'+(c>.62&&c<.72?' ↻ bootstrapping':'');$('#nbm').style.width=S.noise*100+'%';
+ // PBS LUT
+ const ang=t*4,L=16;let s='';for(let i=0;i<L;i++){const x=20+i*16.5,on=i==(Math.floor(ang*2)%L);s+=`<rect x="${x}" y="78" width="14" height="22" rx="2" fill="${on?'#FFD208':'#1c1c16'}" stroke="#FFD20855"/><text x="${x+7}" y="93" font-size="8" text-anchor="middle" fill="${on?'#000':'#888'}" font-family="JetBrains Mono">${(i*7%4)}</text>`}
+ const cx=150+Math.cos(ang)*110,cy=40+Math.sin(ang)*14;s+=`<ellipse cx="150" cy="40" rx="110" ry="14" fill="none" stroke="#FFD20866" stroke-dasharray="3 3"/><circle cx="${cx}" cy="${cy}" r="5" fill="#FFD208"/><line x1="${cx}" y1="${cy}" x2="${20+(Math.floor(ang*2)%L)*16.5+7}" y2="78" stroke="#FFD208" stroke-width=".8"/><text x="150" y="16" fill="#ccc" font-size="9" text-anchor="middle" font-family="JetBrains Mono">blind rotate · X^-b · Π X^(a_i·s_i) · sample extract</text><text x="150" y="115" fill="#888" font-size="8" text-anchor="middle" font-family="JetBrains Mono">LUT f(x)=rarity_bucket(x) · key switch → fresh noise</text>`;$('#pbs').innerHTML=s;
+ // ACL
+ const nodes=[['Zamies',150,60],['your wallet',40,25],['Market',260,25],['Relayer',40,100],['0x9b…e1',260,100]],gr=c>.66;
+ $('#acl').innerHTML=nodes.slice(1).map((n,i)=>{const ok=i==0?gr:i==1?gr:false;return`<line x1="150" y1="60" x2="${n[1]}" y2="${n[2]}" stroke="${ok?'#FFD208':'#3a3a30'}" stroke-dasharray="${ok?'0':'4 4'}" stroke-width="${ok?2:1}"/>`}).join('')+nodes.map((n,i)=>`<circle cx="${n[1]}" cy="${n[2]}" r="${i?7:12}" fill="${i==0||(i<=2&&gr)?'#FFD208':'#222'}" /><text x="${n[1]}" y="${n[2]+(n[2]>60?-11:20)}" fill="#ddd" font-size="9" text-anchor="middle" font-family="JetBrains Mono">${n[0]}${i==1&&gr?' ✓ allow':i==4?' ✗':''}</text>`).join('');
+ kms('#kms',c<.8?0:Math.min(9,Math.floor((c-.8)/.2*10)),t);$('#kq').textContent=(c<.8?0:Math.min(9,Math.floor((c-.8)/.2*10)))+'/13 · need 9';}
+function kms(sel,on,t){let s='';for(let i=0;i<13;i++){const a=i/13*Math.PI*2-Math.PI/2,x=150+Math.cos(a)*100,y=60+Math.sin(a)*45,l=i<on;s+=`<line x1="150" y1="60" x2="${x}" y2="${y}" stroke="${l?'#FFD208':'#222'}"/><circle cx="${x}" cy="${y}" r="${l?7:5}" fill="${l?'#FFD208':'#1a1a1a'}" stroke="#FFD20877"/>`}
+ s+=`<rect x="122" y="50" width="56" height="20" rx="4" fill="#000" stroke="#FFD208"/><text x="150" y="64" fill="#FFD208" font-size="9" text-anchor="middle" font-family="JetBrains Mono">${on>=9?'σ ✓ 9/13':'KMS'}</text>`;$(sel).innerHTML=s}
+// ---- hold
+const hb=$('#hold');
+function start(e){if(M.busy||hb.disabled)return;e&&e.preventDefault();if((!Z.REAL||S.balKnown)&&S.q*PRICE>S.bal){toast('Not enough cZAMA. Opening the Get cZAMA guide…');setTimeout(()=>location.hash='#/get-czama',900);return}try{e&&hb.setPointerCapture(e.pointerId)}catch(_){}M.holding=1;$('#fx').classList.add('on');beep(220)}
+function rel(){if(!M.holding)return;M.holding=0;if(M.c>=1)return;toast('Released too early. Hold the button until the bar reaches 100% to mint.');log('<span style="color:#ff7a1a">✗ encryption aborted · no cZAMA spent</span>');beep(110,.2)}
+hb.addEventListener('pointerdown',start);hb.addEventListener('pointerup',rel);hb.addEventListener('pointercancel',rel);hb.addEventListener('contextmenu',e=>e.preventDefault());
+addEventListener('keydown',e=>{if(e.target==hb&&(e.key==' '||e.key=='Enter')&&!e.repeat){e.preventDefault();start()}});addEventListener('keyup',e=>{if(e.target==hb&&(e.key==' '||e.key=='Enter'))rel()});
+const flyers=[];let dive=0,shockT=-1;
+function complete(){if(Z.REAL)return realComplete();M.busy=1;M.holding=0;hb.disabled=true;$('#ht').textContent='SEALING…';const n=Math.min(S.q,canMax()),ids=[];
+ for(let i=0;i<n;i++){const id=take(ME);if(!id)break;ids.push(id);hidden.add(id);DIRTY.add(id)}S.bal-=ids.length*PRICE;Z.save();
+ dive=1;shockT=0;$('#flash').style.transition='none';$('#flash').style.opacity=1;requestAnimationFrame(()=>{$('#flash').style.transition='opacity 1.2s';$('#flash').style.opacity=0});beep(80,.5,.08);
+ ids.forEach((id,k)=>{const w=base[id-1].p.clone().applyMatrix4(group.matrixWorld);const m=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshBasicMaterial({color:0xFFE24A,wireframe:k%2==1}));m.position.copy(w);scene.add(m);flyers.push({m,id,t:-k*.12,from:w.clone()});mintEvt(id,ME)});
+ log(`<b style="color:#fff">✓ sealed ${ids.length} · ACL→you · KMS 9/13</b>`);paint();ui()}
+function launch(ids){dive=1;shockT=0;$('#flash').style.transition='none';$('#flash').style.opacity=1;requestAnimationFrame(()=>{$('#flash').style.transition='opacity 1.2s';$('#flash').style.opacity=0});beep(80,.5,.08);
+ ids.forEach((id,k)=>{hidden.add(id);DIRTY.add(id);const w=base[id-1].p.clone().applyMatrix4(group.matrixWorld);const m=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshBasicMaterial({color:0xFFE24A,wireframe:k%2==1}));m.position.copy(w);scene.add(m);flyers.push({m,id,t:-k*.12,from:w.clone()});mintEvt(id,ME)});paint();ui()}
+function realComplete(){M.busy=1;M.holding=0;hb.disabled=true;const n=Math.min(S.q,canMax());
+ const st=s=>{$('#ht').textContent=s;log('<span style="color:#ccc">'+s+'</span>')};
+ window.ZR.mint(n,st).then(ids=>{if(!ids.length){M.busy=0;M.c=0;$('#fx').classList.remove('on');toast('Payment check failed (not enough cZAMA?). Nothing minted, no cZAMA moved.');ui();return}
+  log(`<b style="color:#fff">✓ minted ${ids.length} on Sepolia · ACL→you</b>`);launch(ids)}).catch(e=>{M.busy=0;M.c=0;$('#fx').classList.remove('on');toast('Mint failed: '+(e.shortMessage||e.message||e).toString().slice(0,120));log('<span style="color:#ff7a1a">✗ '+(e.shortMessage||e.message||e).toString().slice(0,90)+'</span>');ui()})}
+window.__mint={trayAdd:id=>trayAdd(id),paint:()=>paint(),ui:()=>ui(),mintEvt:(id,w)=>mintEvt(id,w),dirty:id=>DIRTY.add(id)};
+function trayAdd(id){if($('#t'+id))return;if($('#trb').textContent.startsWith('Sealed'))$('#trb').innerHTML='';const d=document.createElement('div');d.className='it';d.id='t'+id;d.innerHTML=`<div class="zcw sc" style="width:42px;height:42px">${Z.cube(id)}</div><div><b>Zamies #${id}</b> <span style="color:var(--y)">sealed</span><small>${handle(id).slice(0,22)}…</small></div><button class="b" data-d="${id}">Decrypt</button>`;$('#trb').prepend(d);$('#tc').textContent=S.mine.length}
+$('#trb').onclick=e=>{const b=e.target.closest('[data-d]');if(b)window.decryptFX(+b.dataset.d)};
+// ---- art
+const grid=id=>window.Z.grid(id);
+const PAL=[['#FFD208','#ff9d00','#fff3a0'],['#ff6a1a','#b8220d','#ffd08a'],['#ffc531','#c78100','#fff0b8'],['#a58bff','#4c34c4','#e6dcff']];
+const pc=(v,P)=>v==1?P[0]:v==2?P[1]:v==3?P[2]:v==4?'#fff':v==5?'#FFD208':'#120d00';
+function svgArt(id){const g=grid(id),T=traits(id),P=PAL[T.cl];let s=`<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><rect width="12" height="12" fill="${T.rar==3?'#1d1600':'#08080a'}"/>`;g.forEach((row,y)=>row.forEach((v,x)=>{if(v)s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${pc(v,P)}"/>`}));return s+'</svg>'}
+// ---- decrypt
+let D=null;
+function decrypt(id){const T=traits(id);$('#dec').classList.add('on');$('#did').textContent='Zamies #'+id;$('#dclose').disabled=true;$('#artw svg')&&$('#artw svg').remove();$('#artw .zc')&&$('#artw .zc').remove();$('#artw').insertAdjacentHTML('beforeend',Z.cube(id,'run'));setTimeout(()=>Z.crack($('#artw .zc')),900);$('#dtr').innerHTML='';
+ const pk='0x04'+HX(40);$('#eip').textContent=JSON.stringify({domain:{name:'Decryption',version:'1',chainId:11155111,verifyingContract:'0xb334c13fba2550e8C72E209f8b1EB38BEc976eAd'},primaryType:'UserDecryptRequest',message:{publicKey:pk,contractAddresses:['0xZamies'],handles:[handle(id).slice(0,34)+'…'],startTimestamp:Math.floor(Date.now()/1e3),durationDays:1}},null,1);
+ const steps=['Sign EIP-712 request in wallet','Relayer verifies ACL: isAllowed(you, handle)','KMS nodes re-encrypt ct → your public key','Threshold 9/13 signatures collected','Decrypt locally with your private key','Render traits · visible only to you'];
+ D={id,t0:performance.now(),steps,T};}
+window.decryptFX=(id,cb)=>{if(Z.S.list[id])return;Z.S.dec[id]=1;if(Z.REAL&&!Z.SEED[id]){toast('Sign the decrypt request in your wallet…');return window.ZR.decryptSeed(id).then(()=>{decrypt(id);D.cb=cb}).catch(e=>toast('Decrypt failed: '+(e.shortMessage||e.message||e).toString().slice(0,120)))}decrypt(id);D.cb=cb};
+function decTick(now){if(!D)return;const e=(now-D.t0)/1000,k=Math.min(6,Math.floor(e/0.75));
+ $('#dst').innerHTML=D.steps.map((s,i)=>`<div class="${i<k?'ok':i==k?'on':''}">${i==k?'▸ ':''}${s}${i==2&&k==2?' · ct '+HX(16):''}</div>`).join('');
+ kms('#dk',k<2?0:k==2?Math.min(9,Math.floor((e-1.5)/.75*9)):9,e);
+ const c=$('#art').getContext('2d'),g=grid(D.id),P=PAL[D.T.cl],p=Math.max(0,Math.min(1,(e-2.6)/1.8));
+ for(let y=0;y<12;y++)for(let x=0;x<12;x++){const v=g[y][x];const settle=((x*7+y*13)%17)/17<p;c.fillStyle=settle?(v?pc(v,P):'#08080a'):`hsl(${48+Math.random()*10},100%,${Math.random()*55|0}%)`;c.fillRect(x*16,y*16,16,16)}
+ if(e>4.6){const T=D.T;$('#artw').insertAdjacentHTML('beforeend',Z.alive(D.id));requestAnimationFrame(()=>$('#artw svg').style.opacity=1);
+  $('#dtr').innerHTML=`<b style="color:var(--y)">${RAR[T.rar]}</b> · ${CLS[T.cl]} class · ${ELM[T.el]}<br>STING ${T.sting} · SPEED ${T.speed} · HONEY ${T.honey} · LUCK ${T.luck}<br><span style="color:#777">decrypted client-side · chain still sees ciphertext</span>`;
+  const it=$('#t'+D.id);if(it){it.querySelector('.sc').outerHTML=Z.alive(D.id);const b=it.querySelector('[data-d]');b.textContent='View';}$('#dclose').disabled=false;beep(1320,.2);S.dec[D.id]=1;Z.save();const cb=D.cb;D=null;cb&&cb()}}
+$('#dclose').onclick=()=>{$('#dec').classList.remove('on');window.appRender&&window.appRender()};
+// ---- loop
+let FR=0;const clock=new THREE.Clock(),tray=new THREE.Vector3();let last=0;
+function loop(){const t=clock.getElapsedTime(),dt=Math.min(.25,t-last);last=t;
+ if(M.holding&&!M.busy){M.c=Math.min(1,M.c+dt/3.4);if(M.c>=1)complete()}else if(!M.busy)M.c=Math.max(0,M.c-dt*1.5);
+ $('#hf').style.width=M.c*100+'%';if(M.holding)$('#ht').textContent=M.c<1?`ENCRYPTING ${S.q} · ${(M.c*100|0)}%`:'';if((M.holding||M.busy)&&(t*20|0)%2==0)fxUpdate(t);if(M.holding&&(t*8|0)!=((t-dt)*8|0))beep(200+M.c*900,.03,.015);
+ if(!M.holding&&!M.busy&&M.c==0&&$('#fx').classList.contains('on'))$('#fx').classList.remove('on');
+ group.rotation.z+=dt*(.06+M.c*.9);core.rotation.y+=dt*(.4+M.c*4);core.scale.setScalar(1+M.c*.6);stars.rotation.y+=dt*.02;
+ const sh=(M.holding&&M.c>.8)?(Math.random()-.5)*.15:0;const tgt=CAM0.clone().lerp(new THREE.Vector3(0,.5,4),Math.max(M.c*.55,dive));cam.position.lerp(tgt.add(new THREE.Vector3(sh,sh,0)),.08);cam.lookAt(0,0,0);
+ dive=Math.max(0,dive-dt*.45);
+ if(shockT>=0){shockT+=dt;shock.scale.setScalar(1+shockT*18);shock.material.opacity=Math.max(0,.9-shockT*.8);shock.lookAt(cam.position);if(shockT>1.2)shockT=-1}
+ let dirty=0;for(let id=1;id<=TOTAL;id++)if(pulse[id]>0||DIRTY.has(id)){pulse[id]=Math.max(0,pulse[id]-dt*.7);setInst(id-1,t);DIRTY.delete(id);dirty=1}if(dirty)IM.instanceMatrix.needsUpdate=true;if((t*10|0)!=((t-dt)*10|0))paint();
+ tray.set(MOBILE?-.7:.78,-.75,.5).unproject(cam);
+ for(let i=flyers.length-1;i>=0;i--){const f=flyers[i];f.t+=dt;const k=Math.max(0,Math.min(1,f.t/1.6)),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+  const mid=f.from.clone().multiplyScalar(1.6).add(new THREE.Vector3(0,3,0));const a=f.from.clone().lerp(mid,e),b=mid.clone().lerp(tray,e);f.m.position.copy(a.lerp(b,e));f.m.rotation.x+=dt*8;f.m.rotation.y+=dt*6;f.m.scale.setScalar(1-e*.7);
+  if(k>=1){scene.remove(f.m);f.m.geometry.dispose();flyers.splice(i,1);hidden.delete(f.id);DIRTY.add(f.id);pulse[f.id]=1;trayAdd(f.id);beep(990,.05)
+   if(!flyers.length){M.busy=0;M.c=0;$('#fx').classList.remove('on');toast(`Mint complete. You now hold ${S.mine.length} Zamies. Open Shielded and use Decrypt to view them.`);ui()}}}
+ FR++;const onM=document.body.classList.contains('r-mint');if(onM)doHover();decTick(performance.now());if(onM||FR%90==0||M.busy)composer?composer.render():R.render(scene,cam);requestAnimationFrame(loop)}
+for(let i=0;i<TOTAL;i++)setInst(i,0);paint();ui();if(!Z.REAL)for(let id=S.next-8;id<S.next;id++)mintEvt(id,S.own[id]);Z.mine().forEach(id=>{trayAdd(id);if(S.dec[id]){const it=$('#t'+id);it.querySelector('.sc').outerHTML=Z.alive(id);it.querySelector('[data-d]').textContent='View'}});loop();window.__Z={S,M};
+</script><script src="app.js"></script><script type="module" src="chain.js"></script><a class="xfab" id="xfab" href="https://x.com/ZamiesFHE" target="_blank" rel="noopener noreferrer" aria-label="Zamies on X (@ZamiesFHE)" title="@ZamiesFHE on X"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M18.9 2H22l-6.8 7.8L23 22h-6.1l-4.8-6.3L6.6 22H3.5l7.3-8.3L1 2h6.2l4.4 5.8L18.9 2zm-1.1 18.2h1.7L6.3 3.7H4.5l13.3 16.5z"/></svg></a></body></html>

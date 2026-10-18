@@ -1,0 +1,44 @@
+# Zamies
+
+> Zamies is a 4,444-piece confidential NFT collection on Zama FHEVM (Sepolia testnet). Each cube's traits are an encrypted on-chain seed that only its current holder can decrypt. Trading settles in cZAMA, Zama's confidential ERC-7984 token, with encrypted amounts.
+
+Site: https://zamies-x.vercel.app
+X (official): https://x.com/ZamiesFHE (@ZamiesFHE)
+Network: Ethereum Sepolia (chainId 11155111). Test tokens only; no real value.
+
+## Contracts (live)
+- Zamies NFT (ERC-721 + ERC-2981): 0xb061a6337f1E6113F428539b832Fd1Db7347c9b0
+- Confidential Market (ZamiesMarketV3): 0x50Ad91dA587952674549c00cB76D287CaD93641E
+- Coprocessor (ZamiesHive): 0x30cFcdfd5dd8f398E37C390d21fd7B01038dF57f
+- Relayer Streaks: 0x10313c712855aec43814dC89313e1Dc22FC72958
+- Cipherweight registry: 0x63fB659856c96fc240c8649114e26a634b09c62a
+- cZAMA (cZAMAMock, 6 decimals): 0xf2D628d2598aF4eAF94CB76a437Ff86CA78FfbFB
+- Treasury / owner: 0x027990b9Ab3102bdC757d1738f23630FbaA34f0D
+
+## Mechanics
+- Mint ("Encrypt"): 20 cZAMA per cube, maximum 10 per wallet. #1–#44 are a free team reserve; public mint covers #45–#4,444. Payment is an encrypted cZAMA transfer; only a paid / not-paid flag is publicly decrypted by the Zama KMS before the cube is minted.
+- Encrypted seed: each cube's art and traits derive from an FHE-encrypted seed. Only the current holder can decrypt it. On transfer of an unrevealed cube the ciphertext is refreshed and access moves to the new holder.
+- Decrypt: private, free (EIP-712 signature), local to the holder's browser. "Encrypt" hides it again.
+- Reveal: available anytime to the current holder. publish(id) makes the seed publicly decryptable and sets published[id]. Permanent; art and full traits become public and the cube is tagged REVEALED. Costs gas only. No effect on rewards or trading.
+- Confidential Market: list, update price, cancel, buy, make/cancel/accept offers. Trading is open now (owner enabled it before mint-out). Listing prices and offer amounts are public; offers are escrowed in cZAMA. Cubes sealed in Seal & Earn cannot be listed or accept offers.
+- Fees: 6.5% of each sale, paid by the seller: 2% treasury, 4% Confidential Yield Pool, 0.5% Burn Pool. Fixed in the market contract; no fee setter.
+
+## Coprocessor (ZamiesHive)
+- Seal & Earn: permanently locks a cube so it earns a share of market fees. Irreversible. A sealed cube cannot be listed, sold or accept offers on the Zamies market; it can still be transferred and stays in the holder's wallet.
+- Confidential Yield Pool: receives 4% of each Zamies market sale and splits it across sealed cubes in proportion to weight. Fees received while no cube is sealed are held and credited when the first cube is sealed. A cube earns only from sales after it was sealed.
+- Encrypted Balance: a sealed cube's unclaimed rewards (FHE euint64). It follows the NFT; only the current holder can decrypt and claim it. claim(id) transfers it to the holder's cZAMA and resets it. Sale prices are public, so total pool income can be estimated.
+- Ciphertext Tracks: a hidden random value (0–3) per sealed cube, decryptable by its holder. No current use.
+- Total Decrypted to Holders: public total of cZAMA credited to sealed cubes. Aggregate only.
+- Cipherweight: 1.25× pool weight (125 vs 100) for wallets holding 3+ Zamies or with a Relayer Streak of 3+ (owner-adjustable thresholds). Registry 0x63fB659856c96fc240c8649114e26a634b09c62a. Weight is set at seal time; Pulse (poke(id), callable by anyone) recalculates it for the current holder.
+- Relayer Streaks: holders call checkIn() on 0x10313c712855aec43814dC89313e1Dc22FC72958. A check-in 20–48 hours after the previous one extends the streak; after 48 hours it restarts at 1. Requires holding a Zamies.
+- Burn Pool: 0.5% of each sale accumulates in the market contract. When it covers the cheapest open listing, anyone can call sweep(id) to buy that cube at its listed price (seller paid normally, minus fees) and send it to 0x000000000000000000000000000000000000dEaD, permanently removing it from supply.
+- Rewards and burns depend entirely on secondary trading volume, which may be zero. Nothing here is an offer, promise or expectation of yield, profit or return.
+
+## Owner permissions
+- Can: open trading early, link the Cipherweight registry once, adjust Cipherweight thresholds, set NFT base URI / treasury / royalty.
+- Cannot: change the market fee split, move holders' cubes or rewards.
+
+## Privacy notes
+- Public: token ownership, listing prices, offer amounts, revealed cubes, aggregate counters.
+- Encrypted: cZAMA balances, unrevealed seeds/traits, per-token Encrypted Balances, Ciphertext Tracks.
+- A previous holder who decrypted a cube keeps that knowledge after a sale.

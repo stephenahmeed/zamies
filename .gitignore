@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# secrets — never commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# build output
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+
+# deploy tooling
+.vercel/
+
+# misc
+*.log
+.DS_Store
